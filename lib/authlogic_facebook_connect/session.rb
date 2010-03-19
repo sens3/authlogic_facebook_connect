@@ -85,9 +85,12 @@ module AuthlogicFacebookConnect
 
       def validate_by_facebook_connect
         facebook_session = controller.facebook_session
-        self.attempted_record = facebook_user_class.find(:first, :conditions => { facebook_uid_field => facebook_session.user.uid })
-
-        if self.attempted_record
+        
+        # connect existing user account
+        if self.attempted_record = controller.current_user 
+          self.attempted_record.send(:"#{facebook_uid_field}=", facebook_session.user.uid)
+        # update session for existing and tied user account  
+        elsif self.attempted_record = facebook_user_class.find(:first, :conditions => { facebook_uid_field => facebook_session.user.uid })
           self.attempted_record.send(:"#{facebook_session_key_field}=", facebook_session.session_key)
           self.attempted_record.save
         end
